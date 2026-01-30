@@ -426,7 +426,12 @@ public:
             import mir.ndslice.topology;
             int err;
             auto compensated1D = compensated.reshape([-1], err);
-            fillPoly(compensated1D, texW, texH, bounds, vertices.toArray(), tris, 0, cast(ubyte)0);
+            // Remove area already covered by the current triangulation from the "uncovered" mask.
+            // (fillPoly operates on a single triangle index.)
+            auto verticesArr = vertices.toArray();
+            foreach (i; 0 .. tris.length) {
+                fillPoly(compensated1D, texW, texH, bounds, verticesArr, tris, i, cast(ubyte)0);
+            }
             int stride = texW + 1;
             int[] sat = new int[(texH + 1) * (texW + 1)];
             foreach (y; 0 .. texH) {
